@@ -1,8 +1,9 @@
-# docassemble.termsandconditions
+# docassemble.termsandcondition
 
 
 
-## Author
+## Authors
 
-Christopher  Emrich, CEmrich@Suffolk.edu
+Christopher  Emrich
 
+Stavros Constantinou
