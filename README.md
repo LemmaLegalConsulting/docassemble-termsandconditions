@@ -1,4 +1,4 @@
-# docassemble.termsandcondition
+# docassemble.termsandconditions
 
 
 
