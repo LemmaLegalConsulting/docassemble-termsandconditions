@@ -1,0 +1,276 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+---
+features:
+  bootstrap theme: termsandconditions2.css
+---
+metadata:
+  title: >-
+    Terms and conditions
+  short title: >-
+    Terms and conditions
+  description: |-
+    Terms and conditions
+  tags: []
+  authors:
+    - Stavros Constantinou and Christopher Emrich
+  allowed_courts: []
+  typical_role: "unknown"
+  al_weaver_version: "1.10.1"
+  generated_on: "2023-08-04"
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = ""
+---
+code: |
+  github_repo_name =  'docassemble-TermsAndConditions'
+---
+code: |
+  interview_short_title = "Get a Terms and conditions"
+---
+code: |
+  al_form_type = "other" 
+---
+objects:
+  - organizations: ALPeopleList
+---
+sections:
+  - Introduction
+  - About the user 
+  - About the Organization
+  - Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_Terms_and_conditions
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = []
+  users[0].name
+  organizations[0].name
+  set_progress(33)
+  interview_order_Terms_and_conditions = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  interview_order_Terms_and_conditions
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  Terms_and_conditions_download
+---
+mandatory: True
+id: basic questions intro screen
+decoration: form-lineal
+question: |
+  ${interview_short_title}: ${ AL_ORGANIZATION_TITLE}
+subquestion: |
+  Step 1. Answer questions that will fill in your form for you.<br>
+  Step 2. Preview the completed form.<br>
+  Step 3. Download and print the final form. 
+  
+  This site is not a lawyer. If you would like a lawyer, find [your local
+  legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
+  
+  Tap the {green words} in any screen for a definition or more information.
+  
+  % if chat_partners_available().help:
+  Live help is currently available in this interview. Click the speech bubble
+  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
+  % endif
+fields:
+  - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.        
+continue button field: al_intro_screen
+terms:
+  green words: |
+    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
+section: Introduction
+---
+mandatory: True
+id: your name
+sets:
+    - users[0].name.first
+    - users[0].name.last
+    - users[0].name.middle
+    - users[0].name.suffix
+question:  |
+  What is your name?
+fields:
+  - code: |
+      users[0].name_fields()
+section: About the user
+---
+id: name of the first person
+sets:
+  - organizations[0].name.first
+  - organizations[0].name.middle
+  - organizations[0].name.last
+  - organizations[0].name.suffix
+question: |
+  Name of your organization
+fields:
+  no label: organizations[0].name
+section: About the Organization
+#mandatory: True 
+#id: name of the first person
+#question: |
+#  Name of your organization
+#fields:
+#  no label: organizations[0].name
+#---
+#mandatory: True
+#code: |
+#  organizations.name = organizations_name
+---
+mandatory: True
+# TODO: consider removing default state
+# BUT: could be helpful to model how to set a default state
+sets:
+  - organizations.address.address
+  - organizations.address.city
+  - organizations.address.zip
+  - organizations.address.unit
+  - organizations.address.state
+  - organizations.address.country
+id: organization address
+question: |
+  What is the address of your organization
+fields:
+  - code: |
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+---
+mandatory: True
+id: preview Terms_and_conditions
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_Terms_and_conditions'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+
+continue button field: Terms_and_conditions_preview_question    
+
+---
+code: |
+  signature_fields = []
+---
+#code: |
+#  # This is a placeholder for the addresses that will be searched
+#  # for matching address to court. Edit if court venue is based on 
+#  # a different address than the user's
+#  [user.address.address for user in users.complete_elements()]
+#  addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: Terms and conditions review screen
+event: review_Terms_and_conditions
+question: |
+  Review your answers
+review:
+  - Edit: organizations[0].name
+    button: |
+      **Organizations**
+
+      - Name of organization: **${organizations[0].name}**
+      
+      - Address: **${organizations[0].address}**
+---
+continue button field: organizations.revisit
+question: |
+  Edit organizations
+subquestion: |
+  ${ organizations.table }
+
+  ${ organizations.add_action() }
+---
+table: organizations.table
+rows: organizations
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - Organization type: |
+      row_item.organization_type if defined("row_item.organization_type") else ""
+  - Email: |
+      row_item.email if defined("row_item.email") else ""
+edit:
+  - name.first
+  - address.address
+  - organization_type
+  - email
+confirm: True
+---
+id: download Terms_and_conditions
+event: Terms_and_conditions_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_Terms_and_conditions'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
+section: Review your answers
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - Terms_and_conditions_Post_interview_instructions: ALDocument.using(title="Instructions", filename="Terms_and_conditions_next_steps.docx", enabled=True, has_addendum=False)
+  - Terms_and_conditions_attachment: ALDocument.using(title="Terms and conditions", filename="terms_and_conditions", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_attachment], filename="terms_and_conditions", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_attachment],  filename="terms_and_conditions", title="All forms to deliver to court", enabled=True)
+---
+attachment:
+  name: Terms and conditions
+  filename: Terms_and_conditions
+  variable name: Terms_and_conditions_attachment[i]
+  skip undefined: True
+  docx template file: terms_and_conditions.docx
+  tagged pdf: True
+
+
+

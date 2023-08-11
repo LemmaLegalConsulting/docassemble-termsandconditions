@@ -2,8 +2,8 @@
 
 
 
-## Author
+## Authors
 
 Christopher  Emrich
-Stavros Constantinou
 
+Stavros Constantinou
