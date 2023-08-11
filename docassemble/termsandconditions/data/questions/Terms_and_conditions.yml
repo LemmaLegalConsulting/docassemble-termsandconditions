@@ -15,7 +15,7 @@ metadata:
     Terms and conditions
   tags: []
   authors:
-    - Court Forms Online
+    - Stavros Constantinou and Christopher Emrich
   allowed_courts: []
   typical_role: "unknown"
   al_weaver_version: "1.10.1"
@@ -40,7 +40,6 @@ code: |
 ---
 objects:
   - organizations: ALPeopleList
-  - al_logo: DAStaticFile.using(filename="suffolk.png")
 ---
 sections:
   - Introduction
@@ -262,19 +261,8 @@ objects:
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_Post_interview_instructions, Terms_and_conditions_attachment], filename="terms_and_conditions", title="All forms to download for your records", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_attachment], filename="terms_and_conditions", title="All forms to download for your records", enabled=True)
   - al_court_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_attachment],  filename="terms_and_conditions", title="All forms to deliver to court", enabled=True)
----
-# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
-# used for "preview" and "final" keys, and logic in the template checks the value of 
-# `i` to show or hide the user's signature
-attachment:
-  name: Post-interview-Instructions
-  filename: Terms_and_conditions_next_steps
-  docx template file: Terms_and_conditions_next_steps.docx
-  variable name: Terms_and_conditions_Post_interview_instructions[i]
-  skip undefined: True
-  tagged pdf: True
 ---
 attachment:
   name: Terms and conditions
