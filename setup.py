@@ -46,7 +46,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 setup(name='docassemble.termsandconditions',
       version='1.01',
       description=(''),
-      long_description='# docassemble.termsandconditions\r\n\r\n\r\n\r\n## Author\r\n\r\nChristopher  Emrich, CEmrich@Suffolk.edu\r\n\r\n',
+      long_description='# docassemble.termsandconditions\r\n\r\n\r\n\r\n## Authors\r\n\r\nChristopher  Emrich\r\n\r\nStavros Constantinou\r\n',
       long_description_content_type='text/markdown',
       author='Christopher  Emrich',
       author_email='CEmrich@Suffolk.edu',
