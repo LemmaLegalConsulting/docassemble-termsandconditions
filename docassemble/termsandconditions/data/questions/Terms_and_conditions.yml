@@ -3,8 +3,8 @@ include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
 ---
-features:
-  bootstrap theme: termsandconditions2.css
+features: 
+  bootstrap theme: lemmalegal.css
 ---
 metadata:
   title: >-
@@ -40,6 +40,10 @@ code: |
 ---
 objects:
   - organizations: ALPeopleList
+  - al_logo: DAStaticFile.using(filename="Lemma_Legal.png")
+---
+code: |
+  AL_ORGANIZATION_TITLE = "Lemma Legal"
 ---
 sections:
   - Introduction
@@ -84,19 +88,12 @@ decoration: form-lineal
 question: |
   ${interview_short_title}: ${ AL_ORGANIZATION_TITLE}
 subquestion: |
-  Step 1. Answer questions that will fill in your form for you.<br>
-  Step 2. Preview the completed form.<br>
-  Step 3. Download and print the final form. 
+  This interview will provide you with a finished terms and conditions document for your business. Make sure to 
   
-  This site is not a lawyer. If you would like a lawyer, find [your local
-  legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
+  1. Answer questions that will fill in your form for you.<br>
+  2. Preview the completed form.<br>
+  3. Download and print the final form. 
   
-  Tap the {green words} in any screen for a definition or more information.
-  
-  % if chat_partners_available().help:
-  Live help is currently available in this interview. Click the speech bubble
-  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
-  % endif
 fields:
   - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
     datatype: checkboxes
