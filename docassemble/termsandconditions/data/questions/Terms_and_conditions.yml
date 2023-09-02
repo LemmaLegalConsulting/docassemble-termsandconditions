@@ -41,6 +41,8 @@ code: |
 objects:
   - organizations: ALPeopleList
   - al_logo: DAStaticFile.using(filename="Lemma_Legal.png")
+  - sources: DAList.using(ask_number=True, complete_attribute="complete")
+  - choices: DAList.using(ask_number=True, complete_attribute="complete")
 ---
 code: |
   AL_ORGANIZATION_TITLE = "Lemma Legal"
@@ -59,6 +61,13 @@ code: |
   allowed_courts = []
   users[0].name
   organizations[0].name
+  website_free_to_use
+  if include_other_info:
+    sources[0]
+  use_google_services
+  text_and_email
+  if choices.target_number > 0:
+    choices[0]
   set_progress(33)
   interview_order_Terms_and_conditions = True
 ---
@@ -80,6 +89,60 @@ code: |
       },
   )
   Terms_and_conditions_download
+---
+id: is the website free
+question: |  
+  Is the website free to use?
+yesno: website_free_to_use
+---
+code: |
+  sources[i]
+  sources[i].complete = True
+---
+id: other information
+question: |
+  Is there any other information that you would like to include?
+fields: 
+  - no label: include_other_info
+    datatype: yesnoradio
+  - How many other sources do you have?: sources.target_number
+    datatype: integer
+    show if: include_other_info
+
+---  
+id: information about other sources
+question: |
+  What other information do you have
+fields:
+  - What is your other information?: sources[i]
+---
+id: use google services
+question: |
+  Does your business use Google services such as Google Maps and Google Analytics?
+yesno: use_google_services
+---
+id: text and email services
+question: |
+  Does your business use text and email delivery services?
+yesno: text_and_email
+---
+code: |
+  choices[i]
+  choices[i].complete = True
+---
+id: other choices
+question: |
+  Is there any other choices that you would like to include?
+fields: 
+  - How many other choices do you have?: choices.target_number
+    datatype: integer
+---  
+id: information about other choices
+question: |
+  What other choices do you have
+fields:
+  - What is your other information?: choices[i]
+
 ---
 mandatory: True
 id: basic questions intro screen
@@ -129,7 +192,7 @@ sets:
   - organizations[0].name.last
   - organizations[0].name.suffix
 question: |
-  Name of your organization
+  Name of the organization you are creating terms and conditions for
 fields:
   no label: organizations[0].name
 section: About the Organization
@@ -262,7 +325,7 @@ attachment:
   name: Terms and conditions
   filename: Terms_and_conditions
   variable name: Terms_and_conditions_attachment[i]
-  skip undefined: True
+  skip undefined: False
   docx template file: terms_and_conditions.docx
   tagged pdf: True
 
