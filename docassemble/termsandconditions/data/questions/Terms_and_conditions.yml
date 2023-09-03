@@ -2,9 +2,9 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
----
-features: 
-  bootstrap theme: lemmalegal.css
+#---
+#features: 
+#  bootstrap theme: lemmalegal.css
 ---
 metadata:
   title: >-
@@ -42,7 +42,7 @@ objects:
   - organizations: ALPeopleList
   - al_logo: DAStaticFile.using(filename="Lemma_Legal.png")
   - sources: DAList.using(ask_number=True, complete_attribute="complete")
-  - choices: DAList.using(ask_number=True, complete_attribute="complete")
+  - choices: DAList
 ---
 code: |
   AL_ORGANIZATION_TITLE = "Lemma Legal"
@@ -61,13 +61,14 @@ code: |
   allowed_courts = []
   users[0].name
   organizations[0].name
+  organizations[0].address
+  organizations[0].email
   website_free_to_use
   if include_other_info:
     sources[0]
   use_google_services
   text_and_email
-  if choices.target_number > 0:
-    choices[0]
+  other_choice
   set_progress(33)
   interview_order_Terms_and_conditions = True
 ---
@@ -88,6 +89,7 @@ code: |
           "reached_interview_end": True,
       },
   )
+  basic_questions_signature_flow
   Terms_and_conditions_download
 ---
 id: is the website free
@@ -101,20 +103,20 @@ code: |
 ---
 id: other information
 question: |
-  Is there any other information that you would like to include?
+  Does your business include information from any other sites
 fields: 
   - no label: include_other_info
     datatype: yesnoradio
-  - How many other sources do you have?: sources.target_number
+  - How many other sites do you include information from: sources.target_number
     datatype: integer
     show if: include_other_info
 
 ---  
 id: information about other sources
 question: |
-  What other information do you have
+  What other sites does your business use
 fields:
-  - What is your other information?: sources[i]
+  - no label: sources[i]
 ---
 id: use google services
 question: |
@@ -125,23 +127,31 @@ id: text and email services
 question: |
   Does your business use text and email delivery services?
 yesno: text_and_email
----
-code: |
-  choices[i]
-  choices[i].complete = True
----
-id: other choices
-question: |
-  Is there any other choices that you would like to include?
-fields: 
-  - How many other choices do you have?: choices.target_number
-    datatype: integer
+
+#---
+#id: other choices
+#question: |
+# Does your business use any technologies that banks and online stores use to keep information safe?
+#fields: 
+#  - How many other technologies does you business use?: choices.target_number
+#    datatype: integer
 ---  
 id: information about other choices
 question: |
   What other choices do you have
 fields:
-  - What is your other information?: choices[i]
+  - Which other technologies does your business use?: choices
+    datatype: checkboxes
+    choices: 
+      - 256 bit encryption
+      - Software firewalls
+      - Limited access controls
+      - Continual monitoring
+      - Regular security updates
+  - Is there another technology not listed?: other_choice
+    datatype: yesnoradio
+  - Description of the other technology: other_choice_description
+    show if: other_choice
 
 ---
 mandatory: True
@@ -196,16 +206,12 @@ question: |
 fields:
   no label: organizations[0].name
 section: About the Organization
-#mandatory: True 
-#id: name of the first person
-#question: |
-#  Name of your organization
-#fields:
-#  no label: organizations[0].name
-#---
-#mandatory: True
-#code: |
-#  organizations.name = organizations_name
+---
+id: organization email
+question: |
+  What is your business' email
+fields:
+  - no label: organizations[0].email
 ---
 mandatory: True
 # TODO: consider removing default state
@@ -244,7 +250,7 @@ continue button field: Terms_and_conditions_preview_question
 
 ---
 code: |
-  signature_fields = []
+  signature_fields = ['users[0].signature']
 ---
 #code: |
 #  # This is a placeholder for the addresses that will be searched
