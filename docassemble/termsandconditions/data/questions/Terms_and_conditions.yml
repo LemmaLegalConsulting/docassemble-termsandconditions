@@ -2,9 +2,9 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALAnyState:any_state.yml
----
-features:
-  bootstrap theme: termsandconditions2.css
+#---
+#features: 
+#  bootstrap theme: lemmalegal.css
 ---
 metadata:
   title: >-
@@ -40,10 +40,15 @@ code: |
 ---
 objects:
   - organizations: ALPeopleList
+  - al_logo: DAStaticFile.using(filename="Lemma_Legal.png")
+  - sources: DAList.using(ask_number=True, complete_attribute="complete")
+  - choices: DAList
+---
+code: |
+  AL_ORGANIZATION_TITLE = "Lemma Legal"
 ---
 sections:
   - Introduction
-  - About the user 
   - About the Organization
   - Review your answers
 ---
@@ -56,6 +61,14 @@ code: |
   allowed_courts = []
   users[0].name
   organizations[0].name
+  organizations[0].address
+  organizations[0].email
+  website_free_to_use
+  if include_other_info:
+    sources[0]
+  use_google_services
+  text_and_email
+  other_choice
   set_progress(33)
   interview_order_Terms_and_conditions = True
 ---
@@ -76,7 +89,70 @@ code: |
           "reached_interview_end": True,
       },
   )
+  basic_questions_signature_flow
   Terms_and_conditions_download
+---
+id: is the website free
+question: |  
+  Is the website free to use?
+yesno: website_free_to_use
+---
+code: |
+  sources[i]
+  sources[i].complete = True
+---
+id: other information
+question: |
+  Does your business include information from any other sites
+fields: 
+  - no label: include_other_info
+    datatype: yesnoradio
+  - How many other sites do you include information from: sources.target_number
+    datatype: integer
+    show if: include_other_info
+
+---  
+id: information about other sources
+question: |
+  What other sites does your business use
+fields:
+  - no label: sources[i]
+---
+id: use google services
+question: |
+  Does your business use Google services such as Google Maps and Google Analytics?
+yesno: use_google_services
+---
+id: text and email services
+question: |
+  Does your business use text and email delivery services?
+yesno: text_and_email
+
+#---
+#id: other choices
+#question: |
+# Does your business use any technologies that banks and online stores use to keep information safe?
+#fields: 
+#  - How many other technologies does you business use?: choices.target_number
+#    datatype: integer
+---  
+id: information about other choices
+question: |
+  What other choices do you have
+fields:
+  - Which other technologies does your business use?: choices
+    datatype: checkboxes
+    choices: 
+      - 256 bit encryption
+      - Software firewalls
+      - Limited access controls
+      - Continual monitoring
+      - Regular security updates
+  - Is there another technology not listed?: other_choice
+    datatype: yesnoradio
+  - Description of the other technology: other_choice_description
+    show if: other_choice
+
 ---
 mandatory: True
 id: basic questions intro screen
@@ -84,19 +160,12 @@ decoration: form-lineal
 question: |
   ${interview_short_title}: ${ AL_ORGANIZATION_TITLE}
 subquestion: |
-  Step 1. Answer questions that will fill in your form for you.<br>
-  Step 2. Preview the completed form.<br>
-  Step 3. Download and print the final form. 
+  This interview will provide you with a finished terms and conditions document for your business. Make sure to 
   
-  This site is not a lawyer. If you would like a lawyer, find [your local
-  legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
+  1. Answer questions that will fill in your form for you.<br>
+  2. Preview the completed form.<br>
+  3. Download and print the final form. 
   
-  Tap the {green words} in any screen for a definition or more information.
-  
-  % if chat_partners_available().help:
-  Live help is currently available in this interview. Click the speech bubble
-  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
-  % endif
 fields:
   - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
     datatype: checkboxes
@@ -125,7 +194,6 @@ question:  |
 fields:
   - code: |
       users[0].name_fields()
-section: About the user
 ---
 id: name of the first person
 sets:
@@ -134,20 +202,16 @@ sets:
   - organizations[0].name.last
   - organizations[0].name.suffix
 question: |
-  Name of your organization
+  Name of the organization you are creating terms and conditions for
 fields:
   no label: organizations[0].name
 section: About the Organization
-#mandatory: True 
-#id: name of the first person
-#question: |
-#  Name of your organization
-#fields:
-#  no label: organizations[0].name
-#---
-#mandatory: True
-#code: |
-#  organizations.name = organizations_name
+---
+id: organization email
+question: |
+  What is your business' email
+fields:
+  - no label: organizations[0].email
 ---
 mandatory: True
 # TODO: consider removing default state
@@ -186,7 +250,7 @@ continue button field: Terms_and_conditions_preview_question
 
 ---
 code: |
-  signature_fields = []
+  signature_fields = ['users[0].signature']
 ---
 #code: |
 #  # This is a placeholder for the addresses that will be searched
@@ -267,7 +331,7 @@ attachment:
   name: Terms and conditions
   filename: Terms_and_conditions
   variable name: Terms_and_conditions_attachment[i]
-  skip undefined: True
+  skip undefined: False
   docx template file: terms_and_conditions.docx
   tagged pdf: True
 
