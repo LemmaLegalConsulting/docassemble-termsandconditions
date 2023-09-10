@@ -166,7 +166,9 @@ decoration: form-lineal
 question: |
   Generate terms and conditions
 subquestion: |
-  This interview will provide you with terms and conditions for your legal tool product. You'll need to:
+  This interview will provide you with plain language terms and conditions for your organization's legal tool product. The resulting terms and conditions are designed for legal aid organizations to improve free legal help. They can be edited later.
+  
+  You'll need to:
   
   1. Answer questions so we can fill in your terms and conditions.
   2. Preview the completed version.
