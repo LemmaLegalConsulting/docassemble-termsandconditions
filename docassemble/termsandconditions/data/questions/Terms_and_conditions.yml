@@ -50,7 +50,7 @@ code: |
 ---
 objects:
   - organizations: ALPeopleList.using(complete_attribute="complete")
-  - al_logo: DAStaticFile.using(filename="LL_white.svg")
+  - al_logo: DAStaticFile.using(filename="detailed_llama_white.png")
   - sources: DAList.using(ask_number=True, complete_attribute="complete")
   - choices: DAList
 ---
