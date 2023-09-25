@@ -5,6 +5,13 @@ include:
 features: 
   bootstrap theme: termsandconditions.css
 ---
+features:
+  css:
+    - styles.css
+---
+default screen parts:
+  pre: |
+---
 metadata:
   title: >-
     Terms and conditions generator
