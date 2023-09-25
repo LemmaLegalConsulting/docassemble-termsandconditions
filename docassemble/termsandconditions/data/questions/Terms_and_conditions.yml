@@ -9,6 +9,9 @@ features:
   css:
     - styles.css
 ---
+default screen parts:
+  pre: |
+---
 metadata:
   title: >-
     Terms and conditions generator
@@ -50,7 +53,7 @@ code: |
 ---
 objects:
   - organizations: ALPeopleList.using(complete_attribute="complete")
-  - al_logo: DAStaticFile.using(filename="detailed_llama_white.png")
+  - al_logo: DAStaticFile.using(filename="LL_white.svg")
   - sources: DAList.using(ask_number=True, complete_attribute="complete")
   - choices: DAList
 ---

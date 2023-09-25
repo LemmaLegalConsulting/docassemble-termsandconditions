@@ -8078,12 +8078,12 @@ textarea.form-control-lg {
 
 .bg-light {
   --bs-bg-opacity: 1;
-  background-color: rgba(205,205,205, var(--bs-bg-opacity)) !important;
+  background-color: rgba(200, 200, 200, var(--bs-bg-opacity)) !important;
 }
 
 .bg-dark {
   --bs-bg-opacity: 1;
-  background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+  background-color: rgba(117, 117, 117, var(--bs-bg-opacity)) !important;
 }
 
 .bg-primary {
