@@ -60,7 +60,7 @@ objects:
 sections:
   - Introduction
   - Answer questions
-  - Preview and make changes
+  - Preview
   - Download
 ---
 #################### Interview order #####################
@@ -71,13 +71,16 @@ code: |
   # Set the allowed courts for this interview
   allowed_courts = []
   organizations.gather(number=1)
-  website_free_to_use
-  if include_other_info:
+  set_progress(20)
+  website_free_to_use = True
+  if sources.there_are_any:
     sources[0]
+  set_progress(40)
   use_google_services
   text_and_email
+  set_progress(60)
   other_technology_choices
-  set_progress(33)
+  set_progress(80)
   terms_and_conditions_preview_question
   interview_order_Terms_and_conditions = True
 ---
@@ -118,12 +121,11 @@ code: |
 id: other information
 question: |
   Does ${ organizations[0].name } include information from any other sources?
+suquestion: |
+  For example, information from other legal aid or non profits.
 fields: 
-  - no label: include_other_info
+  - no label: sources.there_are_any
     datatype: yesnoradio
-  - How many other sources?: sources.target_number
-    datatype: integer
-    show if: include_other_info
 ---  
 id: information about other sources
 question: |
@@ -164,22 +166,21 @@ fields:
       - Limited access controls
       - Continual monitoring
       - Regular security updates
-      - Other
-  - Explain: other_choice_description
-    show if: other_technology_choices['Other']
+---
+#      - Other
+#  - Explain: other_choice_description
+#    show if: other_technology_choices['Other']
 ---
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  Generate terms and conditions
+  Terms and conditions generator
 subquestion: |
-  This interview will provide you with plain language terms and conditions for your organization's legal tool product. The resulting terms and conditions are designed for legal aid organizations to improve free legal help. They can be edited later.
+  This interview will provide you with plain language terms and conditions and privacy policy for your organization's legal aid tool product. 
   
-  You'll need to:
+  The terms and conditions are made for legal aid organizations to improve free legal help. They can be edited later.
   
-  1. Answer questions so we can fill in your terms and conditions.
-  2. Preview the completed version.
-  3. Download your terms and conditions. 
+  You'll need to answer questions about the organization and then download the terms and conditions. 
   
 fields:
   - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
@@ -199,9 +200,10 @@ section: Introduction
 ---
 id: organization email
 question: |
-  What is your organization's email?
+  ${ organizations[0] }'s email
 fields:
-  - no label: organizations[0].email
+  - Email: organizations[0].email
+    datatype: email
 ---
 id: name of the first org
 sets:
@@ -212,8 +214,7 @@ sets:
 question: |
   Name of the organization you are creating terms and conditions for
 fields:
-  - code: |
-      organizations[i].name_fields(person_or_business='business')
+  - Organization name: organizations[i].name.first
 section: Answer questions
 ---
 sets:
@@ -225,16 +226,16 @@ sets:
   - organizations[i].address.country
 id: organization address
 question: |
-  Address of the organization you are creating terms and conditions for
+  ${ organizations[0] }'s address
 fields:
   - code: |
       organizations[i].address_fields(country_code=AL_DEFAULT_COUNTRY)
 ---
 id: preview Terms_and_conditions
 question: |
-  Preview your form before you sign it
+  Preview ${ organizations[0] }'s terms and conditions
 subquestion: |
-  Here is a preview of the form you will sign on the next page.   
+  Here is a preview of ${ organizations[0] }'s terms and conditions and privacy policy.
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
@@ -243,41 +244,10 @@ subquestion: |
 
   ${ action_button_html(url_action('review_Terms_and_conditions'), label='Edit answers', color='info') }
   
-  Remember to come back to this window to continue and sign your form.
+  Remember to come back to this window to continue.
 
 continue button field: terms_and_conditions_preview_question    
-section: Preview and make changes
----
-code: |
-  signature_fields = ['users[0].signature']
----
-#code: |
-#  # This is a placeholder for the addresses that will be searched
-#  # for matching address to court. Edit if court venue is based on 
-#  # a different address than the user's
-#  [user.address.address for user in users.complete_elements()]
-#  addresses_to_search = [user.address for user in users.complete_elements()]
----
-id: Terms and conditions review screen
-event: review_Terms_and_conditions
-question: |
-  Review your answers
-review:
-  - Edit: organizations[0].name
-    button: |
-      **Organizations**
-
-      - Name of organization: **${organizations[0].name}**
-      
-      - Address: **${organizations[0].address}**
----
-continue button field: organizations.revisit
-question: |
-  Edit organizations
-subquestion: |
-  ${ organizations.table }
-
-  ${ organizations.add_action() }
+section: Preview
 ---
 table: organizations.table
 rows: organizations
@@ -286,30 +256,73 @@ columns:
       row_item.name.full() if defined("row_item.name.first") else ""
   - Address: |
       row_item.address.block() if defined("row_item.address.address") else ""
-  - Organization type: |
-      row_item.organization_type if defined("row_item.organization_type") else ""
   - Email: |
       row_item.email if defined("row_item.email") else ""
 edit:
   - name.first
   - address.address
-  - organization_type
   - email
 confirm: True
+---
+id: Terms and conditions review screen
+event: review_Terms_and_conditions
+question: |
+  Review your answers
+review:
+  - Edit: 
+      - organizations[0].name.first
+      - organizations[0].address.address
+      - organizations[0].email
+    button: |
+      **Organization**
+
+      - Name: **${organizations[0].name}**
+      
+      - Address: **${organizations[0].address}**
+      
+      - Email: **${organizations[0].email}**
+  - Edit: |-
+      sources[0]
+    button: |-
+      **Sources**
+
+      % for item in sources:
+      - ${ item }
+      % endfor
+  - Edit: 
+      - other_technology_choices
+    button: |-
+      **Choices**
+
+      % for item in other_technology_choices.true_values():
+      - ${ item }
+      % endfor
+  - Edit: |-
+      use_google_services
+    button: |
+      **Does ${ organizations[0].name } use Google services?**
+
+      ${ word(yesno(use_google_services)) }
+  - Edit: |-
+      text_and_email
+    button: |
+      **Does ${ organizations[0].name } use text and email delivery services?**
+
+      ${ word(yesno(text_and_email)) }
 ---
 id: download Terms_and_conditions
 event: Terms_and_conditions_download
 question: |
-  All done
+  Download ${ organizations[0] }'s terms and conditions
 subquestion: |
-  Thank you ${users}. Your form is ready to download and deliver.
+  ${ organizations[0] }'s terms and conditions and privacy policy are ready to download.
   
-  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+  View, download, and send the terms and conditions below. Click the "Edit answers" button to fix any mistakes.
 
   ${ action_button_html(url_action('review_Terms_and_conditions'), label='Edit answers', color='info') }
   
   
-  ${ al_user_bundle.download_list_html() }
+  ${ al_user_bundle.download_list_html(format="docx") }
   
 
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
