@@ -2,12 +2,12 @@
 include:
   - docassemble.AssemblyLine:assembly_line.yml
 ---
-features: 
-  bootstrap theme: termsandconditions.css
----
-features:
-  css:
-    - styles.css
+#features: 
+#  bootstrap theme: termsandconditions.css
+#---
+#features:
+#  css:
+#    - styles.css
 ---
 default screen parts:
   pre: |
