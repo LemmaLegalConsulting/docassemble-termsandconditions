@@ -14,13 +14,15 @@ default screen parts:
 ---
 metadata:
   title: >-
-    Terms and conditions generator
+    Plain language terms of use generator
   short title: >-
-    Terms and conditions
+    Plain language terms of use generator
   description: |-
-    Terms and conditions
+    Plain language terms of use generator
   tags: []
   authors:
+    - Lemma Legal
+    - Mia Bonardi
     - Stavros Constantinou 
     - Christopher Emrich
   allowed_courts: []
@@ -40,9 +42,6 @@ code: |
   github_repo_name = 'docassemble-TermsAndConditions'
 ---
 code: |
-  interview_short_title = "Get a Terms and conditions"
----
-code: |
   al_form_type = "other" 
 ---
 code: |
@@ -60,13 +59,12 @@ objects:
 sections:
   - Introduction
   - Answer questions
-  - Preview
   - Download
 ---
 #################### Interview order #####################
 comment: |
   Controls order and branching logic for questions specific to this form
-id: interview_order_Terms_and_conditions
+id: interview_order_Terms_of_use
 code: |
   # Set the allowed courts for this interview
   allowed_courts = []
@@ -76,13 +74,11 @@ code: |
   if sources.there_are_any:
     sources[0]
   set_progress(40)
-  use_google_services
-  text_and_email
+  service_choices
   set_progress(60)
   other_technology_choices
   set_progress(80)
-  terms_and_conditions_preview_question
-  interview_order_Terms_and_conditions = True
+  interview_order_Terms_of_use = True
 ---
 code: |
   organizations[i].name.first
@@ -97,7 +93,7 @@ comment: |
 mandatory: True
 code: |
   al_intro_screen
-  interview_order_Terms_and_conditions
+  interview_order_Terms_of_use
   signature_date
   # Store anonymous data for analytics / statistics
   store_variables_snapshot(
@@ -107,7 +103,7 @@ code: |
           "reached_interview_end": True,
       },
   )
-  Terms_and_conditions_download
+  Terms_of_use_download
 ---
 id: is the website free
 question: |  
@@ -121,7 +117,7 @@ code: |
 id: other information
 question: |
   Does ${ organizations[0].name } include information from any other sources?
-suquestion: |
+subquestion: |
   For example, information from other legal aid or non profits.
 fields: 
   - no label: sources.there_are_any
@@ -136,15 +132,15 @@ list collect: True
 ---
 id: use google services
 question: |
-  Does ${ organizations[0].name } use Google services?
-subquestion: |
-  Such as Google Maps and Google Analytics.
-yesno: use_google_services
----
-id: text and email services
-question: |
-  Does ${ organizations[0].name } use text and email delivery services?
-yesno: text_and_email
+  Which does ${ organizations[0].name } use?
+fields:
+  - no label: service_choices
+    datatype: checkboxes
+    choices: 
+      - Google Analytics
+      - Google Maps
+      - Text and email delivery
+      - Cookies
 
 #---
 #id: other choices
@@ -174,16 +170,22 @@ fields:
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  Terms and conditions generator
+  Plain language terms of use generator
 subquestion: |
-  This interview will provide you with plain language terms and conditions and privacy policy for your organization's legal aid tool product. 
+  This interview will provide you with a plain language terms of use and privacy policy.
   
-  The terms and conditions are made for legal aid organizations to improve free legal help. They can be edited later.
+  It is designed specifically for individuals and organizations hosting interactive legal apps. 
+   
+   This tool requests only the necessary information to customize your terms of use and privacy policy.
+   
+   You will be able to download your terms of use and privacy policy in both markdown and docx formats.
+   
+   Here is our terms of use and privacy policy, which also serves as an example of what your document may look like:
   
-  You'll need to answer questions about the organization and then download the terms and conditions. 
+  ${ display_template(LL_terms_of_use, scrollable=True, collapse=False) }
   
 fields:
-  - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
+  - To continue, you must you must accept the terms of use: acknowledged_information_use
     datatype: checkboxes
     none of the above: False    
     minlength: 1
@@ -198,13 +200,6 @@ terms:
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
 section: Introduction
 ---
-id: organization email
-question: |
-  ${ organizations[0] }'s email
-fields:
-  - Email: organizations[0].email
-    datatype: email
----
 id: name of the first org
 sets:
   - organizations[i].name.first
@@ -212,7 +207,7 @@ sets:
   - organizations[i].name.last
   - organizations[i].name.suffix
 question: |
-  Name of the organization you are creating terms and conditions for
+  Name of the organization you are creating terms of use for
 fields:
   - Organization name: organizations[i].name.first
 section: Answer questions
@@ -226,27 +221,29 @@ sets:
   - organizations[i].address.country
 id: organization address
 question: |
-  ${ organizations[0] }'s address
+  ${ organizations[0] }'s contact information
 fields:
   - code: |
       organizations[i].address_fields(country_code=AL_DEFAULT_COUNTRY)
+  - Email: organizations[0].email
+    datatype: email
 ---
-id: preview Terms_and_conditions
+id: preview Terms_of_use
 question: |
-  Preview ${ organizations[0] }'s terms and conditions
+  Preview ${ organizations[0] }'s terms of use
 subquestion: |
-  Here is a preview of ${ organizations[0] }'s terms and conditions and privacy policy.
+  Here is a preview of ${ organizations[0] }'s terms of use and privacy policy.
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
   Click the image to open it in a new tab. Click the "Edit answers" button
   to edit your answers.
 
-  ${ action_button_html(url_action('review_Terms_and_conditions'), label='Edit answers', color='info') }
+  ${ action_button_html(url_action('review_Terms_of_use'), label='Edit answers', color='info') }
   
   Remember to come back to this window to continue.
 
-continue button field: terms_and_conditions_preview_question    
+continue button field: terms_of_use_preview_question    
 section: Preview
 ---
 table: organizations.table
@@ -264,8 +261,8 @@ edit:
   - email
 confirm: True
 ---
-id: Terms and conditions review screen
-event: review_Terms_and_conditions
+id: Terms of use review screen
+event: review_Terms_of_use
 question: |
   Review your answers
 review:
@@ -297,55 +294,202 @@ review:
       % for item in other_technology_choices.true_values():
       - ${ item }
       % endfor
-  - Edit: |-
-      use_google_services
-    button: |
-      **Does ${ organizations[0].name } use Google services?**
 
-      ${ word(yesno(use_google_services)) }
-  - Edit: |-
-      text_and_email
-    button: |
-      **Does ${ organizations[0].name } use text and email delivery services?**
-
-      ${ word(yesno(text_and_email)) }
 ---
-id: download Terms_and_conditions
-event: Terms_and_conditions_download
-question: |
-  Download ${ organizations[0] }'s terms and conditions
-subquestion: |
-  ${ organizations[0] }'s terms and conditions and privacy policy are ready to download.
+#id: download Terms_and_conditions
+#event: Terms_and_conditions_download
+#question: |
+#  Download ${ organizations[0] }'s Terms of use and privacy policy
+#subquestion: |
+#  ${ organizations[0] }'s plain laguage terms of use and privacy policy is ready to download.
+#  
+#  View, download, and send yourself the terms of use below. Click the "Edit answers" button to fix any mistakes.
+#
+#  ${ action_button_html(url_action('review_Terms_of_use'), label='Edit answers', color='info') }
+#  
+#  
+#  ${ al_user_bundle.download_list_html(format="docx") }
+#  
+#
+#  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+#
+#progress: 100
+#section: Download
+#---
+## ALDocument objects specify the metadata for each template
+#objects:
+#  - Terms_and_conditions_attachment: ALDocument.using(title="Terms of Use", filename="terms_of_use", enabled=True, has_addendum=False, )
+#---
+## Bundles group the ALDocuments into separate downloads, such as for court and for the user
+#objects:
+#  - al_user_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_attachment], filename="terms_of_use", title="All forms to download for your records", enabled=True)
+#  - al_court_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_attachment],  filename="terms_of_use", title="All forms to deliver to court", enabled=True)
+#---
+#attachment:
+#  name: Terms of Use
+#  filename: terms_of_use
+#  variable name: Terms_and_conditions_attachment[i]
+#  skip undefined: True
+#  docx template file: terms_and_conditions.docx
+#  tagged pdf: True
+---
+template: LL_terms_of_use
+subject: Terms of Use and Privacy Policy
+content: |
+  This website is free to use.
+  Lemma Legal hosts this site.
   
-  View, download, and send the terms and conditions below. Click the "Edit answers" button to fix any mistakes.
+  ### You need to know
+  
+  * This website does not provide legal advice. If you need legal advice, contact a lawyer.
+  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold Lemma Legal or the information providers on this site liable.
+  * We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.
+  * We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support. 
+  
+  ### To use this site
+  
+  * You need to be over 13 to use this site. 
+  * This site is for anyone 13 and over. For example: you can be the person who needs the help, a lawyer, or a social worker.
+  * You may not sell the information or the contents of this site. But you can charge for your own time. 
+  * Please keep your use fair. Do not use this site in a way that is illegal or that makes it harder for other people to use.
+  
+  ### Information we and others collect
+  
+  * We collect the information that you type to help you complete your forms. We delete all information 180 days after you last update it. You can also delete information immediately.
+  * We log information including IP addresses and web browsers from all visitors. We use this information to keep our site secure. We keep logs for up to 180 days.
+  * We use cookies for security and to help improve our website.
+  * We use Google Maps to help fill in addresses automatically. This feature sends your IP address to Google Maps to get your approximate location.
+  * We use Google Analytics to learn how people use our website. This helps us understand which pages are hardest to use. Google may use this information to show you better advertisements.
+  * We use email and text message delivery services that may keep their own records of any messages you send. If you choose to log in with your phone number, this may include a record of the times you log in to the site.
+  
+  ### We keep your information safe
+  
+  * We use the same technology that banks and online stores use to keep your information safe. 
+  * We use:
+      * 256 bit encryption
+      * Continual monitoring
+      * Limited access controls
+      * Regular security updates
+      * Software firewalls
+  
+  ### Sharing your information
+  
+  * We never sell your information.
+  * We share anonymous information with a small number of nonprofits and researchers. We use the information to improve our site and to improve free legal help in Massachusetts.
+  * When you visit some pages of the site, the site may ask if you want to apply to get a free lawyer from legal aid. You get to decide if you want to share your personal information.
+  * You may choose to email completed forms or share a link to your in-progress work at any time to any person.
+  
+  ### These terms of use can change
+  
+  * We may change these Terms of Use at any time with no notice. Please review the terms on a regular basis to see any changes.
+  * If you use the site after we make changes, you accept our changed Terms of Use.
+  
+  The laws of Massachusetts apply to these Terms of Use.
+  
+  If a judge decides that one of the terms in this Terms of Use is unenforceable, it will not change the terms that remain.
+  
+  ### If you still have questions
+  
+  If you would like to access, correct, amend, or delete any personal information we have about you or have any other questions, contact us at: 
+  
+  Lemma Legal
+  
+  info@lemmalegal.com
 
-  ${ action_button_html(url_action('review_Terms_and_conditions'), label='Edit answers', color='info') }
-  
-  
-  ${ al_user_bundle.download_list_html(format="docx") }
-  
-
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
-
+---
+id: download Terms_of_use_download
+event: Terms_of_use_download
 progress: 100
 section: Download
----
-# ALDocument objects specify the metadata for each template
-objects:
-  - Terms_and_conditions_attachment: ALDocument.using(title="Terms and conditions", filename="terms_and_conditions", enabled=True, has_addendum=False, )
----
-# Bundles group the ALDocuments into separate downloads, such as for court and for the user
-objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_attachment], filename="terms_and_conditions", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[Terms_and_conditions_attachment],  filename="terms_and_conditions", title="All forms to deliver to court", enabled=True)
----
-attachment:
-  name: Terms and conditions
-  filename: Terms_and_conditions
-  variable name: Terms_and_conditions_attachment[i]
-  skip undefined: True
-  docx template file: terms_and_conditions.docx
-  tagged pdf: True
+question: |
+  Download ${ organizations[0] }'s Terms of use and privacy policy
+subquestion: |
+  ${ organizations[0] }'s plain laguage terms of use and privacy policy is ready to download.
+  
+  View, download, and send yourself the terms of use below.
+attachments:
+  - name: Terms of Use
+    filename: terms_of_use
+    valid formats:
+      - docx
+      - md
+    content: |
+      # ${ organizations[0] }'s Terms of Use and Privacy Policy
+      
+      % if website_free_to_use:
+      This website is free to use.
+      % endif
+      ${ organizations[0] } hosts this site.
+      
+      % if sources.there_are_any:
+      We include information from:
+      % for source in sources:
+      *	${ source }
+      % endfor
+      
+      % endif
+      ### You need to know
+      
+      * This website does not provide legal advice. If you need legal advice, contact a lawyer.
+      * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold ${ organizations[0] } or the information providers on this site liable.
+      * We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.
+      * We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support. 
 
+      ### To use this site
 
+      * You need to be over 13 to use this site. 
+      * This site is for anyone 13 and over. For example: you can be the person who needs the help, a lawyer, or a social worker.
+      * You may not sell the information or the contents of this site. But you can charge for your own time. 
+      * Please keep your use fair. Do not use this site in a way that is illegal or that makes it harder for other people to use.
 
+      ### Information we and others collect
+
+      * We collect the information that you type to help you complete your forms. We delete all information 180 days after you last update it. You can also delete information immediately.
+      * We log information including IP addresses and web browsers from all visitors. We use this information to keep our site secure. We keep logs for up to 180 days.
+      % if service_choices["Cookies"]:
+      * We use cookies for security and to help improve our website.
+      % endif
+      % if service_choices["Google Maps"]:
+      * We use Google Maps to help fill in addresses automatically. This feature sends your IP address to Google Maps to get your approximate location.
+      % endif
+      % if service_choices["Google Analytics"]:
+      * We use Google Analytics to learn how people use our website. This helps us understand which pages are hardest to use. Google may use this information to show you better advertisements.
+      % endif
+      % if service_choices["Text and email delivery"]:
+      * We use email and text message delivery services that may keep their own records of any messages you send. If you choose to log in with your phone number, this may include a record of the times you log in to the site.
+      % endif
+
+      ### We keep your information safe
+
+      * We use the same technology that banks and online stores use to keep your information safe. 
+      * We use:
+          % for choice in other_technology_choices.true_values():
+          * ${ choice }
+          % endfor
+
+      ### Sharing your information
+
+      * We never sell your information.
+      * We share anonymous information with a small number of nonprofits and researchers. We use the information to improve our site and to improve free legal help in ${ state_name(organizations[0].address.state) }.
+      * When you visit some pages of the site, the site may ask if you want to apply to get a free lawyer from legal aid. You get to decide if you want to share your personal information.
+      * You may choose to email completed forms or share a link to your in-progress work at any time to any person.
+
+      ### These terms of use can change
+      
+      * We may change these Terms of Use at any time with no notice. Please review the terms on a regular basis to see any changes.
+      * If you use the site after we make changes, you accept our changed Terms of Use.
+      
+      The laws of ${ state_name(organizations[0].address.state) } apply to these Terms of Use.
+      
+      If a judge decides that one of the terms in this Terms of Use is unenforceable, it will not change the terms that remain.
+      
+      ### If you still have questions
+
+      If you would like to access, correct, amend, or delete any personal information we have about you or have any other questions, contact us at: 
+
+      ${ organizations[0].name.full() }
+      
+      ${ organizations[0].address.line_one() }
+      ${ organizations[0].address.line_two() }
+      
+      ${ organizations[0].email }

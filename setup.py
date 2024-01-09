@@ -45,8 +45,8 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 
 setup(name='docassemble.termsandconditions',
       version='1.01',
-      description=(''),
-      long_description='# docassemble.termsandconditions\r\n\r\ninfo@lemmalegal.com\r\n\r\n## Authors\r\n\r\nLemma Legal\r\nMia Bonardi\r\nChristopher Emrich\r\nStavros Constantinou\r\n',
+      description=('Plain language terms of use and privacy policy generator.'),
+      long_description='# docassemble.termsandconditions\r\n\r\nPlain language terms of use and privacy policy generator.\r\n\r\ninfo@lemmalegal.com\r\n\r\n## Authors\r\n\r\n- Lemma Legal\r\n- Mia Bonardi\r\n- Christopher Emrich\r\n- Stavros Constantinou\r\n',
       long_description_content_type='text/markdown',
       author='Lemma Legal',
       author_email='info@lemmalegal.com',

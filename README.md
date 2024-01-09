@@ -1,6 +1,6 @@
 # docassemble.termsandconditions
 
-Plain language terms and conditions generator for non profit legal tech tools.
+Plain language terms of use and privacy policy generator.
 
 info@lemmalegal.com
 
