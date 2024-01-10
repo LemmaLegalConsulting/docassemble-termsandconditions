@@ -180,7 +180,7 @@ subquestion: |
    
    You will be able to download your terms of use and privacy policy in both markdown and docx formats.
    
-   Here is our terms of use and privacy policy, which also serves as an example of what your document may look like:
+   Read our terms of use and privacy policy below. This is an example of what your customized document may look like:
   
   ${ display_template(LL_terms_of_use, scrollable=True, collapse=False) }
   
