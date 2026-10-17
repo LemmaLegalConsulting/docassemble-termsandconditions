@@ -14,7 +14,6 @@ Feature: Plain language terms of use
       | organizations[0].address.state | MA |
       | organizations[0].address.zip | 02108 |
       | organizations[0].email | contact@example.com |
-      | website_free_to_use | True |
       | sources.there_are_any | False |
       | service_choices['Cookies'] | True |
       | other_technology_choices['256 bit encryption'] | True |
